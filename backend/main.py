@@ -4,10 +4,15 @@ from databricks import sql
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from dotenv import load_dotenv
 
-host = ""
-http_path = ""
-access_token = ""
+load_dotenv()
+
+host = os.getenv("DATABRICKS_HOSTNAME")
+http_path = os.getenv("DATABRICKS_HTTP_PATH")
+access_token = os.getenv("DATABRICKS_ACCESS_TOKEN")
+catalog = os.getenv("DATABRICKS_CATALOG")
+schema = os.getenv("DATABRICKS_SCHEMA")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -34,16 +39,19 @@ async def health_check():
 async def get_classification():
     connection = get_databricks_connection()
     cursor = connection.cursor()
-    cursor.execute('SELECT resource_category, resource_type, total_count FROM cq_catalog.cloudquery.cloud_assets_counts')
+    classification_query = f'SELECT resource_category, resource_type, resource_type_label, total_count FROM {catalog}.{schema}.cloud_assets_counts'
+    logger.info(f'Executing classification query: {classification_query}')
+    cursor.execute(classification_query)
     result = cursor.fetchall()
     cursor.close()
     connection.close()
     
     data = {}
     for row in result:
-        resource_category = row[0]
+        resource_category = row[0] or "Unknown"
         resource_type = row[1]
-        total_count = row[2]
+        resource_type_label = row[2] if row[2] else row[1]
+        total_count = row[3]
         
         if resource_category not in data:
             data[resource_category] = {
@@ -55,7 +63,8 @@ async def get_classification():
         # Add the type to the category
         data[resource_category]["types"].append({
             "resource_type": resource_type,
-            "total_count": total_count
+            "resource_type_label": resource_type_label,
+            "total_count": total_count,
         })
         
         data[resource_category]["total_count"] += total_count
@@ -97,6 +106,12 @@ async def get_data(request: Request):
                 conditions.append(f"`{field}` != '{value}'")
             elif operator == "contains":
                 conditions.append(f"`{field}` LIKE '%{value}%'")
+            elif operator == "doesNotContain":
+                conditions.append(f"`{field}` NOT LIKE '%{value}%'")
+            elif operator == "startsWith":
+                conditions.append(f"`{field}` LIKE '{value}%'")
+            elif operator == "endsWith":
+                conditions.append(f"`{field}` LIKE '%{value}'")
             # Add more operators as needed
         
         if conditions:
@@ -140,12 +155,14 @@ async def get_data(request: Request):
         order_by_clause = ""
 
     # Get total count first with filter
-    count_query = f'SELECT COUNT(*) as total FROM cq_catalog.cloudquery.cloud_assets {where_clause}'
+    count_query = f'SELECT COUNT(*) as total FROM {catalog}.{schema}.cloud_assets {where_clause}'
+    logger.info(f'Executing count query: {count_query}')
     cursor.execute(count_query)
     total_count = cursor.fetchone()[0]
 
     # Get paginated data with filter and sorting
-    data_query = f'SELECT * FROM cq_catalog.cloudquery.cloud_assets {where_clause} {order_by_clause} LIMIT {page_size} OFFSET {offset}'
+    data_query = f'SELECT * FROM {catalog}.{schema}.cloud_assets {where_clause} {order_by_clause} LIMIT {page_size} OFFSET {offset}'
+    logger.info(f'Executing data query: {data_query}')
     cursor.execute(data_query)
     result = cursor.fetchall()
     

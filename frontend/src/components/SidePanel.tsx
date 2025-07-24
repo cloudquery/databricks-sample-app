@@ -20,6 +20,7 @@ type Category = {
   total_count: number;
   types: {
     resource_type: string;
+    resource_type_label: string;
     total_count: number;
   }[];
 };
@@ -41,6 +42,17 @@ const sx = (
       : "transparent",
   borderRadius: 2,
 });
+
+const textTypographyProps = {
+  sx: {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    maxWidth: "75%",
+    fontSize: "14px",
+    textTransform: "capitalize",
+  },
+};
 
 const ExpandableList = ({
   category,
@@ -75,7 +87,11 @@ const ExpandableList = ({
           <ListItemIcon>
             {hasSubItems ? <TableRowsIcon /> : <CategoryIcon />}
           </ListItemIcon>
-          <ListItemText primary={resource_category} />
+          <ListItemText
+            primary={resource_category}
+            secondary={total_count}
+            primaryTypographyProps={textTypographyProps}
+          />
           {hasSubItems && (
             <ListItemIcon>
               {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -85,7 +101,7 @@ const ExpandableList = ({
       </ListItem>
       {hasSubItems && (
         <Collapse in={isExpanded} timeout="auto" unmountOnExit={true}>
-          <List sx={{ paddingLeft: 2 }}>
+          <List sx={{ paddingLeft: 2, paddingRight: 1 }}>
             <ListItem
               disablePadding
               sx={sx(selectedItem, {
@@ -101,30 +117,34 @@ const ExpandableList = ({
                 <ListItemText
                   primary={ALL_FILTER_VALUE}
                   secondary={total_count}
+                  primaryTypographyProps={textTypographyProps}
                 />
               </ListItemButton>
             </ListItem>
-            {types.map(({ resource_type, total_count }) => (
-              <ListItem
-                key={`${category}-${resource_type}`}
-                disablePadding
-                sx={sx(selectedItem, {
-                  category: resource_category,
-                  type: resource_type,
-                })}
-                onClick={() => handleClick(resource_category, resource_type)}
-              >
-                <ListItemButton>
-                  <ListItemIcon>
-                    <LabelIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={resource_type}
-                    secondary={total_count}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {types.map(
+              ({ resource_type, resource_type_label, total_count }) => (
+                <ListItem
+                  key={`${category}-${resource_type}`}
+                  disablePadding
+                  sx={sx(selectedItem, {
+                    category: resource_category,
+                    type: resource_type,
+                  })}
+                  onClick={() => handleClick(resource_category, resource_type)}
+                >
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <LabelIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={resource_type_label}
+                      secondary={total_count}
+                      primaryTypographyProps={textTypographyProps}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )
+            )}
           </List>
         </Collapse>
       )}
@@ -155,9 +175,7 @@ export const SidePanel = ({
           <ListItemText
             primary="All resources"
             secondary={grandTotalCount}
-            secondaryTypographyProps={{
-              sx: { textAlign: "right" },
-            }}
+            primaryTypographyProps={textTypographyProps}
             onClick={() => onItemClick(ALL_FILTER_VALUE)}
           />
         </ListItemButton>

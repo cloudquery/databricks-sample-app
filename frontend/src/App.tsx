@@ -2,13 +2,14 @@ import { useEffect } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
+import SearchIcon from "@mui/icons-material/Search";
 import { createThemeOptions } from "@cloudquery/cloud-ui";
 import { MuiChipsInput } from "mui-chips-input";
 import { SidePanel } from "./components/SidePanel";
 import { InventoryTable } from "./components/InventoryTable";
 import { useDatabricks } from "./hooks/useDatabricks";
 import { useChips } from "./hooks/useChips";
+import logo from "./assets/logo.svg";
 
 const cloudUITheme = createThemeOptions();
 const theme = createTheme(cloudUITheme);
@@ -29,6 +30,8 @@ function App() {
     selectedCategory,
     selectedType,
     rowCount,
+    columnVisibilityModel,
+    setColumnVisibilityModel,
   } = useDatabricks();
 
   const handleManualClauseChange = (newChips: string[]) => {
@@ -65,8 +68,27 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Stack direction={"row"}>
-        <Box p={2} sx={{ width: "275px" }}>
+      <Box sx={{ display: "flex", height: "100vh" }}>
+        <Box
+          sx={{
+            width: "275px",
+            flexShrink: 0,
+            height: "100%",
+            bgcolor: "secondary.darkest",
+            borderRight: "1px solid",
+            borderRightColor: "secondary.dark",
+          }}
+        >
+          <img
+            src={logo}
+            alt="logo"
+            style={{
+              width: "160px",
+              height: "auto",
+              margin: "20px auto",
+              display: "block",
+            }}
+          />
           <SidePanel
             items={panelData?.data || []}
             onItemClick={handlePanelItemClick}
@@ -76,26 +98,40 @@ function App() {
             }}
           />
         </Box>
-        <Box p={2} sx={{ textAlign: "center", width: "80vw" }}>
-          <MuiChipsInput
-            value={chips}
-            onChange={handleManualClauseChange}
-            fullWidth
-          />
-          <InventoryTable
-            rows={tableData?.data || []}
-            columns={columns}
-            loading={loading}
-            filterModel={filterModel}
-            paginationModel={paginationModel}
-            sortModel={sortModel}
-            rowCount={rowCount}
-            onFilterModelChange={handleFilterModelChange}
-            onPaginationModelChange={setPaginationModel}
-            onSortModelChange={setSortModel}
-          />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ flexShrink: 0, p: 2 }}>
+            <MuiChipsInput
+              size="small"
+              value={chips}
+              onChange={handleManualClauseChange}
+              fullWidth
+            />
+          </Box>
+          <Box sx={{ flex: 1, overflow: "hidden" }}>
+            <InventoryTable
+              rows={tableData?.data || []}
+              columns={columns}
+              loading={loading}
+              filterModel={filterModel}
+              paginationModel={paginationModel}
+              sortModel={sortModel}
+              rowCount={rowCount}
+              onFilterModelChange={handleFilterModelChange}
+              onPaginationModelChange={setPaginationModel}
+              onSortModelChange={setSortModel}
+              onColumnVisibilityModelChange={setColumnVisibilityModel}
+              columnVisibilityModel={columnVisibilityModel}
+            />
+          </Box>
         </Box>
-      </Stack>
+      </Box>
     </ThemeProvider>
   );
 }

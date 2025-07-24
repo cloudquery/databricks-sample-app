@@ -6,6 +6,7 @@ import {
   GridSortModel,
   DataGridPro as DataGrid,
   gridClasses,
+  GridColumnVisibilityModel,
 } from "@mui/x-data-grid-pro";
 import "./InventoryTable.css";
 import { useEffect, useState } from "react";
@@ -18,9 +19,11 @@ interface InventoryTableProps {
   onFilterModelChange: (model: GridFilterModel) => void;
   onPaginationModelChange: (model: GridPaginationModel) => void;
   onSortModelChange: (model: GridSortModel) => void;
+  onColumnVisibilityModelChange: (model: GridColumnVisibilityModel) => void;
   filterModel: any;
   paginationModel: GridPaginationModel;
   sortModel: GridSortModel;
+  columnVisibilityModel: GridColumnVisibilityModel;
   rowCount?: number;
 }
 
@@ -31,6 +34,8 @@ export const InventoryTable = ({
   onFilterModelChange,
   onPaginationModelChange,
   onSortModelChange,
+  onColumnVisibilityModelChange,
+  columnVisibilityModel,
   filterModel,
   paginationModel,
   sortModel,
@@ -79,9 +84,11 @@ export const InventoryTable = ({
   return (
     <>
       {loading ? (
-        <Box sx={{ py: 2 }}>
-          <CircularProgress color="success" disableShrink />
-        </Box>
+        <CircularProgress
+          color="success"
+          disableShrink
+          sx={{ margin: "auto", display: "block", marginTop: "20px" }}
+        />
       ) : columns.length === 0 ? (
         <Box
           sx={{
@@ -110,10 +117,13 @@ export const InventoryTable = ({
           paginationModel={paginationModel}
           sortModel={sortModel}
           filterModel={localFilterModel}
+          columnVisibilityModel={columnVisibilityModel}
           onFilterModelChange={handleFilterModelChange}
           onPaginationModelChange={onPaginationModelChange}
           onSortModelChange={onSortModelChange}
+          onColumnVisibilityModelChange={onColumnVisibilityModelChange}
           sx={{
+            height: "100%",
             [`& .${gridClasses.cell}`]: {
               height: "52px",
             },

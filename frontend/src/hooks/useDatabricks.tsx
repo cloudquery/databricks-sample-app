@@ -6,6 +6,7 @@ import {
   GridFilterItem,
   GridPaginationModel,
   GridSortModel,
+  GridColumnVisibilityModel,
 } from "@mui/x-data-grid-pro";
 import { useRoutedState } from "./useRoutedState";
 
@@ -19,6 +20,12 @@ export const useDatabricks = () => {
     key: "filter",
     defaultValue: { items: [] },
   });
+
+  const [columnVisibilityModel, setColumnVisibilityModel] =
+    useRoutedState<GridColumnVisibilityModel>({
+      key: "columnVisibility",
+      defaultValue: {},
+    });
 
   const [paginationModel, setPaginationModel] =
     useRoutedState<GridPaginationModel>({
@@ -100,5 +107,7 @@ export const useDatabricks = () => {
     selectedCategory,
     selectedType,
     rowCount: tableData?.rowCount,
+    columnVisibilityModel,
+    setColumnVisibilityModel,
   };
 };

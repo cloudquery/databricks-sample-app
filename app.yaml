@@ -1,1 +1,11 @@
 command: ["uvicorn", "backend.main:app"]
+
+env:
+  - name: DATABRICKS_HOSTNAME
+    valueFrom: databricks_hostname
+
+  - name: DATABRICKS_HTTP_PATH
+    valueFrom: databricks_http_path
+
+  - name: DATABRICKS_ACCESS_TOKEN
+    valueFrom: databricks_access_token

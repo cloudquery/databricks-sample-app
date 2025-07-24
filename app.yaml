@@ -2,10 +2,16 @@ command: ["uvicorn", "backend.main:app"]
 
 env:
   - name: DATABRICKS_HOSTNAME
-    valueFrom: databricks_hostname
+    valueFrom: secrets
 
   - name: DATABRICKS_HTTP_PATH
-    valueFrom: databricks_http_path
+    valueFrom: secrets
 
   - name: DATABRICKS_ACCESS_TOKEN
-    valueFrom: databricks_access_token
+    valueFrom: secrets
+
+  - name: DATABRICKS_CATALOG
+    valueFrom: secrets
+
+  - name: DATABRICKS_SCHEMA
+    valueFrom: secrets

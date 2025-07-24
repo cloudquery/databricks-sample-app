@@ -8,6 +8,8 @@ from fastapi.responses import FileResponse
 host = os.getenv("DATABRICKS_HOSTNAME")
 http_path = os.getenv("DATABRICKS_HTTP_PATH")
 access_token = os.getenv("DATABRICKS_ACCESS_TOKEN")
+catalog = os.getenv("DATABRICKS_CATALOG")
+schema = os.getenv("DATABRICKS_SCHEMA")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -140,12 +142,12 @@ async def get_data(request: Request):
         order_by_clause = ""
 
     # Get total count first with filter
-    count_query = f'SELECT COUNT(*) as total FROM cq_catalog.cloudquery.cloud_assets {where_clause}'
+    count_query = f'SELECT COUNT(*) as total FROM {catalog}.{schema}.cloud_assets {where_clause}'
     cursor.execute(count_query)
     total_count = cursor.fetchone()[0]
 
     # Get paginated data with filter and sorting
-    data_query = f'SELECT * FROM cq_catalog.cloudquery.cloud_assets {where_clause} {order_by_clause} LIMIT {page_size} OFFSET {offset}'
+    data_query = f'SELECT * FROM {catalog}.{schema}.cloud_assets {where_clause} {order_by_clause} LIMIT {page_size} OFFSET {offset}'
     cursor.execute(data_query)
     result = cursor.fetchall()
     

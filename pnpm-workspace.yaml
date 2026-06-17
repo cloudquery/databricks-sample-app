@@ -1,1 +1,4 @@
 minimumReleaseAge: 10080 # 7 days
+minimumReleaseAgeExclude:
+  # Renovate security update: vite@6.4.3
+  - vite@6.4.3
